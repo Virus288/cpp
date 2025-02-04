@@ -25,6 +25,8 @@ int main() {
             case 4:
             movement.move("South");
             break;
+            default:
+            cout << "Incorrect param. Exiting";
         }
     }
 
