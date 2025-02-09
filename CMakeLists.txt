@@ -10,5 +10,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 # Change build output
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build)
 
+# Include headers
+include_directories(include)
+
 # Add executable target
-add_executable(program main.cpp movement/movement.cpp)
+add_executable(program src/main.cpp src/connections/auth.cpp)
