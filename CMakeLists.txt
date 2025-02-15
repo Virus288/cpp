@@ -14,4 +14,4 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build)
 include_directories(include)
 
 # Add executable target
-add_executable(program src/main.cpp src/tools/logger.cpp src/connections/auth.cpp)
+add_executable(program src/main.cpp src/tools/logger.cpp src/connections/auth.cpp src/modules/index.cpp)

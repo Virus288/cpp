@@ -3,10 +3,17 @@
 #include "../../include/tools/logger.h"
 
 #include <cstdlib>
+#include <fstream>
 
-using std::cout;
+using std::ifstream;
+using std::ofstream;
 using std::string;
 using std::system;
+
+Auth::Auth() {
+  Logger::debug("Auth instance created.");
+  server_ = std::make_unique<httplib::Server>();
+}
 
 void Auth::login() {
   std::string login_url = "https://api.server.com/user/login?client=login";
@@ -24,18 +31,23 @@ void Auth::registerUser() {
 };
 
 void Auth::startServer() {
-  server_ = std::make_unique<httplib::Server>();
-
   server_->Get("/login",
                [this](const httplib::Request &req, httplib::Response &res) {
                  Logger::debug("Got request on callback");
 
-                 // Print all headers
-                 cout << "Headers:" << std::endl;
-                 for (const auto &header : req.headers) {
-                   cout << header.first << ": " << header.second << std::endl;
+                 string cookie_header = req.headers.find("cookie")->second;
+
+                 // Now parse the cookie value
+                 string token;
+                 string key = "authClient.token=";
+                 size_t pos = cookie_header.find(key);
+                 if (pos != string::npos) {
+                   pos += key.length();
+                   size_t end = cookie_header.find(";", pos);
+                   token = cookie_header.substr(pos, end - pos);
                  }
 
+                 saveToken(token);
                  this->isAuthenticated = true;
                });
 
@@ -44,3 +56,21 @@ void Auth::startServer() {
 }
 
 void Auth::stopServer() { server_->stop(); }
+
+void Auth::saveToken(string token) {
+  ofstream config_file;
+  Logger::debug("Saving token to file");
+  config_file.open("./config.txt");
+  config_file << token << "\n";
+  config_file.close();
+}
+
+string Auth::readToken() {
+  ifstream config_file;
+  string token = "";
+  config_file.open("./config.txt");
+  config_file >> token;
+  config_file.close();
+
+  return token;
+}

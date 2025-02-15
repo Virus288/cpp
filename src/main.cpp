@@ -1,36 +1,36 @@
 #include "../include/connections/auth.h"
+#include "../include/modules/index.h"
 #include "../include/tools/logger.h"
-#include <iostream>
-#include <thread>
 
-using std::cin;
+#include <csignal>
+#include <thread>
+#include <unistd.h>
+
 using std::this_thread::sleep_for;
 using namespace std::chrono_literals;
 
+bool stop_flag = false;
+
+void signalHandler(int signum) {
+  Logger::log("Received signal to close application.");
+  stop_flag = true;
+}
+
 int main() {
-  Auth auth;
-  string option;
+  Logger::debug("dupa 1");
+  Game game;
+  Logger::debug("dupa 2");
 
-  // Start server on another tread
-  std::thread serverThread([&auth]() { auth.startServer(); });
+  std::signal(SIGINT, signalHandler);
+  std::signal(SIGTERM, signalHandler);
 
-  Logger::log("Would you like to log in or register ? [login,reg]: \n");
-  cin >> option;
+  Logger::debug("dupa 3");
+  game.init(stop_flag);
 
-  if (option == "login") {
-    auth.login();
-  } else {
-    auth.registerUser();
-  }
-
-  Logger::log("Waiting for authentication... \n");
-  while (!auth.isAuthenticated) {
+  while (!stop_flag) {
     sleep_for(1s);
   }
 
-  Logger::log("Authentication successful. Exiting \n");
-
-  auth.stopServer();
-  serverThread.join();
+  Logger::log("Cleanup and exiting... \n");
   return 0;
 }

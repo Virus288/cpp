@@ -6,10 +6,13 @@ using std::string;
 
 class Auth {
 public:
+  Auth();
   void registerUser();
   void login();
   void stopServer();
   void startServer();
+  void saveToken(string token);
+  string readToken();
   bool isAuthenticated;
 
 private:
