@@ -1,4 +1,4 @@
-#include "../connections/auth.h"
+#include "../connections/auth.hpp"
 #include <memory>
 #include <string>
 
@@ -10,6 +10,7 @@ public:
   Game();
   void init(bool &stop_flag);
   void auth();
+  void getUser();
 
 private:
   unique_ptr<Auth> auth_;

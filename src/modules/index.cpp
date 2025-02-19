@@ -1,6 +1,8 @@
-#include "../../include/modules/index.h"
-#include "../../include/connections/auth.h"
-#include "../../include/tools/logger.h"
+#include "../../include/modules/index.hpp"
+#include "../../include/connections/auth.hpp"
+#include "../../include/connections/communicator.hpp"
+#include "../../include/errors/errors.hpp"
+#include "../../include/tools/logger.hpp"
 
 #include <csignal>
 #include <thread>
@@ -16,23 +18,29 @@ Game::Game() {
 }
 
 void Game::init(bool &stop_flag) {
-  Logger::debug("dupa 4");
+  const bool isAuthorized = auth_->isAuthorized();
+  if (isAuthorized) {
+    Logger::log("User is authorized");
+    stop_flag = true;
+    auth_->stopServer();
 
-  // Start server on another tread
-  std::thread serverThread([this]() { this->auth_->startServer(); });
+    getUser();
+  } else {
+    // Start server on another tread
+    std::thread serverThread([this]() { this->auth_->startServer(); });
 
-  Logger::debug("dupa 5");
-  auth();
+    auth();
 
-  while (!auth_->isAuthenticated) {
-    sleep_for(1s);
+    while (!auth_->isAuthenticated) {
+      sleep_for(1s);
+    }
+
+    Logger::log("Authentication successful. Exiting");
+
+    auth_->stopServer();
+    stop_flag = true;
+    serverThread.join();
   }
-
-  Logger::log("Authentication successful. Exiting");
-
-  auth_->stopServer();
-  stop_flag = true;
-  serverThread.join();
 };
 
 void Game::auth() {
@@ -48,4 +56,12 @@ void Game::auth() {
   }
 
   Logger::log("Waiting for authentication...");
+}
+
+void Game::getUser() {
+  Communicator communicator;
+
+  Errors::catcher([&]() {
+    return communicator.sendGet("/users/details"); // Send GET request
+  });
 }

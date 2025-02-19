@@ -1,11 +1,13 @@
-#include "../../include/connections/auth.h"
-#include "../../include/external/httplib.h"
-#include "../../include/tools/logger.h"
+#include "../../include/connections/auth.hpp"
+#include "../../include/external/httplib.hpp"
+#include "../../include/tools/logger.hpp"
 
 #include <cstdlib>
 #include <fstream>
+#include <optional>
 
 using std::ifstream;
+using std::nullopt;
 using std::ofstream;
 using std::string;
 using std::system;
@@ -65,12 +67,21 @@ void Auth::saveToken(string token) {
   config_file.close();
 }
 
-string Auth::readToken() {
+optional<string> Auth::readToken() {
   ifstream config_file;
   string token = "";
   config_file.open("./config.txt");
   config_file >> token;
   config_file.close();
 
-  return token;
+  if (token != "") {
+    return token;
+  } else {
+    return nullopt;
+  }
+}
+
+bool Auth::isAuthorized() {
+  const optional<string> token = readToken();
+  return token.has_value();
 }

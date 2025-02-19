@@ -1,7 +1,10 @@
-#include "../external/httplib.h"
+#include "../external/httplib.hpp"
+
 #include <memory>
+#include <optional>
 #include <string>
 
+using std::optional;
 using std::string;
 
 class Auth {
@@ -12,7 +15,8 @@ public:
   void stopServer();
   void startServer();
   void saveToken(string token);
-  string readToken();
+  optional<string> readToken();
+  bool isAuthorized();
   bool isAuthenticated;
 
 private:
