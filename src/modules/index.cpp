@@ -59,9 +59,9 @@ void Game::auth() {
 }
 
 void Game::getUser() {
-  Communicator communicator;
+  Communicator &name = Communicator::getInstance();
 
   Errors::catcher([&]() {
-    return communicator.sendGet("/users/details"); // Send GET request
+    return name.sendGet("/users/details"); // Send GET request
   });
 }

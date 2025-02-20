@@ -1,15 +1,17 @@
-#include "../external/httplib.hpp"
-
-#include <memory>
-#include <optional>
 #include <string>
-
-using std::optional;
 using std::string;
 
 class Communicator {
 public:
-  void static sendGet(string path);
+  void sendGet(string path);
+  static Communicator &getInstance();
+
+private:
+  const string baseUrl = "https://api.server.com";
+  static Communicator instance;
+  Communicator();
+  Communicator(Communicator const &);
+  void operator=(Communicator const &);
 };
 
 #pragma once
